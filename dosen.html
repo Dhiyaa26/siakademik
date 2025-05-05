@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dosen</title>
+    <link rel="stylesheet" href="">
+    <link rel="stylesheet" href="matkul.css">
+
+    <!-- Fonts and CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,400,600,700,800,900" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/startbootstrap-sb-admin-2/4.0.6/css/sb-admin-2.min.css">
+  <link rel="stylesheet" href="matkul.css">
+
+    <!-- Firebase SDK -->
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+  import { getDatabase, ref, set, update, remove, onValue, push } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyC4h4Fk0rZCGhqZt4AUw4NYXTizM_J2hh4",
+    authDomain: "realtime-db-f4793.firebaseapp.com",
+    databaseURL: "https://realtime-db-f4793-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "realtime-db-f4793",
+    storageBucket: "realtime-db-f4793.appspot.com",
+    messagingSenderId: "651818522011",
+    appId: "1:651818522011:web:5e451ccf77e2c2594b7d3e",
+    measurementId: "G-B2VMN1P8XK"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  const uidField = document.getElementById('uid');
+  const kodeField = document.getElementById('kode');
+  const namaField = document.getElementById('nama');
+  const deleteBtn = document.getElementById('deleteBtn');
+  const dosenList = document.getElementById('dosenList');
+
+  function resetForm() {
+    uidField.value = '';
+    kodeField.value = '';
+    namaField.value = '';
+    deleteBtn.classList.add('d-none');
+  }
+
+  window.saveDosen = function () {
+    const kode = kodeField.value.trim();
+    const nama = namaField.value.trim();
+    const uid = uidField.value || push(ref(db, 'dosen')).key;
+
+    if (!kode || !nama) {
+      alert("Kode dan Nama wajib diisi");
+      return;
+    }
+
+    const data = { kode, nama };
+    set(ref(db, 'dosen/' + uid), data)
+      .then(() => {
+        alert(uidField.value ? "Dosen diperbarui" : "Dosen ditambahkan");
+        resetForm();
+      });
+  };
+
+  window.selectDosen = function (uid, kode, nama) {
+    uidField.value = uid;
+    kodeField.value = kode;
+    namaField.value = nama;
+    deleteBtn.classList.remove('d-none');
+  };
+
+  window.deleteDosen = function () {
+    const uid = uidField.value;
+    if (uid && confirm("Yakin ingin menghapus data ini?")) {
+      remove(ref(db, 'dosen/' + uid)).then(() => {
+        alert("Dosen dihapus");
+        resetForm();
+      });
+    }
+  };
+
+  function loadDosen() {
+    onValue(ref(db, 'dosen'), (snapshot) => {
+      dosenList.innerHTML = '';
+      snapshot.forEach(child => {
+        const val = child.val();
+        dosenList.innerHTML += `
+          <tr>
+            <td>${child.key}</td>
+            <td>${val.kode}</td>
+            <td>${val.nama}</td>
+            <td>
+            <button class="btn btn-warning btn-sm" onclick="selectDosen('${child.key}', '${val.kode}', '${val.nama}')"> 
+            <i class="fas fa-edit"></i> Edit</button>
+            `;
+      });
+    });
+  }
+
+  loadDosen();
+</script>
+
+  
+</head>
+<body>
+      <!-- Page Wrapper -->
+  <div id="wrapper">
+
+    <!-- Sidebar -->
+    <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+      <!-- Brand -->
+      <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+        <div class="sidebar-brand-icon rotate-n-15">
+          <i class="fas fa-laugh-wink"></i>
+        </div>
+        <div class="sidebar-brand-text mx-3">SI Akademik</div>
+      </a>
+
+      <!-- Divider -->
+      <hr class="sidebar-divider my-0">
+
+      <!-- Menu Items -->
+      <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="fas fa-fw fa-tachometer-alt"></i><span>Dashboard</span></a></li>
+      <hr class="sidebar-divider">
+      <div class="sidebar-heading">Menu</div>
+      <li class="nav-item"><a class="nav-link" href="matakuliah.html"><i class="fas fa-fw fa-book"></i><span>Mata Kuliah</span></a></li>
+      <li class="nav-item"><a class="nav-link" href="dosen.html"><i class="fas fa-fw fa-chalkboard-teacher"></i><span>Dosen</span></a></li>
+      <li class="nav-item"><a class="nav-link" href="mengajar.html"><i class="fas fa-fw fa-calendar-day"></i><span>Jadwal</span></a></li>
+    </ul>
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+      <!-- Main Content -->
+      <div id="content">
+
+        <!-- Topbar -->
+        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+          <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+            <i class="fa fa-bars"></i>
+          </button>
+
+          <ul class="navbar-nav ml-auto">
+            <div class="topbar-divider d-none d-sm-block"></div>
+            <li class="nav-item dropdown no-arrow">
+              <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown">
+                <span class="mr-2 d-none d-lg-inline text-gray-600 small">Administrator</span>
+                <img class="img-profile rounded-circle" src="https://source.unsplash.com/QAB-WJcbgJk/60x60">
+              </a>
+              <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                <a class="dropdown-item" href="#"><i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>Ubah Password</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal"><i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>Logout</a>
+              </div>
+            </li>
+          </ul>
+        </nav>
+
+        <!-- MAIN PAGE CONTENT -->
+<div class="container mt-4">
+    <h3 class="mb-3">Dosen</h3>
+    <form class="border p-4 rounded bg-light shadow-sm mb-4">
+      <div class="mb-3">
+        <label class="form-label">UID (Otomatis)</label>
+        <input type="text" class="form-control" id="uid" placeholder="Auto Generated" readonly>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Kode Dosen</label>
+        <input type="text" class="form-control" id="kode" placeholder="Masukkan Kode Dosen">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Nama Dosen</label>
+        <input type="text" class="form-control" id="nama" placeholder="Masukkan Nama Dosen">
+      </div>
+      <div class="d-flex gap-2">
+        <button type="button" class="btn btn-primary" onclick="saveDosen()">Save</button><br>
+        <button type="button" class="btn btn-danger btn-sm" id="deleteBtn" onclick="deleteDosen()"><i class="fas fa-trash-alt"></i>Delete</button>
+      </div>
+    </form>
+  
+    <div class="card shadow-sm">
+      <div class="card-header">
+        <strong>Data Dosen</strong>
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-hover m-0" id="tb_dosen">
+          <thead class="table-light">
+            <tr>
+              <th>UID</th>
+              <th>Kode</th>
+              <th>Nama</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="dosenList"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+      
+     <!-- JS Scripts -->
+     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- ✅ jQuery -->
+     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> <!-- ✅ Bootstrap 4 -->
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script> <!-- 🚫 duplicate jQuery -->
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script> <!-- ✅ easing -->
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/startbootstrap-sb-admin-2/4.0.6/js/sb-admin-2.min.js"></script> <!-- ✅ SB Admin 2 -->
+     <script src="script.js"></script> <!-- ✅ your script -->
+     
+</body>
+</html>

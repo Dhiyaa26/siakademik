@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mengajar</title>
+
+    <!-- Fonts and CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,400,600,700,800,900" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/startbootstrap-sb-admin-2/4.0.6/css/sb-admin-2.min.css">
+
+   <!-- Firebase & Logic -->
+   <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getDatabase, ref, onValue, update, remove, push } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC4h4Fk0rZCGhqZt4AUw4NYXTizM_J2hh4",
+      authDomain: "realtime-db-f4793.firebaseapp.com",
+      databaseURL: "https://realtime-db-f4793-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "realtime-db-f4793",
+      storageBucket: "realtime-db-f4793.appspot.com",
+      messagingSenderId: "651818522011",
+      appId: "1:651818522011:web:5e451ccf77e2c2594b7d3e",
+      measurementId: "G-B2VMN1P8XK"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // Save new data
+    window.createNgajar = () => {
+      const data = {
+        kode_dosen: document.getElementById("kode_dosen").value,
+        kode_matakuliah: document.getElementById("kode_matakuliah").value,
+        semester: document.getElementById("semester").value,
+        tahun: document.getElementById("tahun").value,
+      };
+
+      if (!data.kode_dosen || !data.kode_matakuliah || !data.semester || !data.tahun) {
+        alert("Semua field harus diisi.");
+        return;
+      }
+
+      push(ref(db, "mengajar"), data)
+        .then(() => {
+          alert("Data berhasil ditambahkan.");
+          // Clear form
+          document.getElementById("kode_dosen").value = "";
+          document.getElementById("kode_matakuliah").value = "";
+          document.getElementById("semester").value = "";
+          document.getElementById("tahun").value = "";
+        })
+        .catch(err => alert("Error: " + err));
+    };
+
+    // Update data
+    window.updateNgajar = () => {
+      const uid = document.getElementById("uid").value;
+      if (!uid) return alert("ID belum dipilih.");
+      const data = {
+        kode_dosen: document.getElementById("kode_dosen").value,
+        kode_matakuliah: document.getElementById("kode_matakuliah").value,
+        semester: document.getElementById("semester").value,
+        tahun: document.getElementById("tahun").value,
+      };
+      update(ref(db, "mengajar/" + uid), data)
+        .then(() => alert("Data berhasil diperbarui"))
+        .catch(err => alert("Error: " + err));
+    };
+
+    // Delete data
+    window.deleteNgajar = () => {
+      const uid = document.getElementById("uid").value;
+      if (!uid) return alert("ID belum dipilih.");
+      remove(ref(db, "mengajar/" + uid))
+        .then(() => alert("Data berhasil dihapus"))
+        .catch(err => alert("Error: " + err));
+    };
+
+    // Populate dropdowns
+    function loadOptions(path, elementId) {
+      const select = document.getElementById(elementId);
+      onValue(ref(db, path), snapshot => {
+        snapshot.forEach(child => {
+          const data = child.val();
+          const option = document.createElement("option");
+          option.text = `${data.kode} - ${data.nama}`;
+          option.value = data.kode;
+          select.appendChild(option);
+        });
+      });
+    }
+
+    // Load options for Dosen and Mata Kuliah
+    loadOptions("dosen", "kode_dosen");
+    loadOptions("matakuliah", "kode_matakuliah");
+
+    // Load data into table
+    const tableBody = document.querySelector("#tb_mengajar tbody");
+    onValue(ref(db, "mengajar"), snapshot => {
+      tableBody.innerHTML = "";
+      snapshot.forEach(child => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${child.key}</td>
+          <td>${child.val().kode_dosen}</td>
+          <td>${child.val().kode_matakuliah}</td>
+          <td>${child.val().semester}</td>
+          <td>${child.val().tahun}</td>
+          <td>
+            <button onclick="editNgajar('${child.key}', '${child.val().kode_dosen}', '${child.val().kode_matakuliah}', '${child.val().semester}', '${child.val().tahun}')" class="btn btn-info btn-sm">Edit</button>
+            <button onclick="deleteNgajar('${child.key}')" class="btn btn-danger btn-sm">Delete</button>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
+    });
+
+    // Edit function to populate the form with existing data
+    window.editNgajar = (uid, kode_dosen, kode_matakuliah, semester, tahun) => {
+      document.getElementById("uid").value = uid;
+      document.getElementById("kode_dosen").value = kode_dosen;
+      document.getElementById("kode_matakuliah").value = kode_matakuliah;
+      document.getElementById("semester").value = semester;
+      document.getElementById("tahun").value = tahun;
+    };
+  </script>
+
+</head>
+<body>
+    <!-- Page Wrapper -->
+  <div id="wrapper">
+
+    <!-- Sidebar -->
+    <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+      <!-- Brand -->
+      <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+        <div class="sidebar-brand-icon rotate-n-15">
+          <i class="fas fa-laugh-wink"></i>
+        </div>
+        <div class="sidebar-brand-text mx-3">SI Akademik</div>
+      </a>
+
+      <!-- Divider -->
+      <hr class="sidebar-divider my-0">
+
+      <!-- Menu Items -->
+      <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="fas fa-fw fa-tachometer-alt"></i><span>Dashboard</span></a></li>
+      <hr class="sidebar-divider">
+      <div class="sidebar-heading">Menu</div>
+      <li class="nav-item"><a class="nav-link" href="matakuliah.html"><i class="fas fa-fw fa-book"></i><span>Mata Kuliah</span></a></li>
+      <li class="nav-item"><a class="nav-link" href="dosen.html"><i class="fas fa-fw fa-chalkboard-teacher"></i><span>Dosen</span></a></li>
+      <li class="nav-item"><a class="nav-link" href="mengajar.html"><i class="fas fa-fw fa-calendar-day"></i><span>Jadwal</span></a></li>
+    </ul>
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+      <!-- Main Content -->
+      <div id="content">
+
+        <!-- Topbar -->
+        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+          <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+            <i class="fa fa-bars"></i>
+          </button>
+
+          <ul class="navbar-nav ml-auto">
+            <div class="topbar-divider d-none d-sm-block"></div>
+            <li class="nav-item dropdown no-arrow">
+              <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown">
+                <span class="mr-2 d-none d-lg-inline text-gray-600 small">Administrator</span>
+                <img class="img-profile rounded-circle" src="https://source.unsplash.com/QAB-WJcbgJk/60x60">
+              </a>
+              <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                <a class="dropdown-item" href="#"><i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>Ubah Password</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal"><i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>Logout</a>
+              </div>
+            </li>
+          </ul>
+        </nav>
+
+        <!-- MAIN CONTENT -->
+        <div class="container-fluid">
+          <h1 class="h3 mb-4 text-gray-800">Info Mengajar</h1>
+          <form class="user">
+            <div class="form-group">
+              <input type="text" class="form-control" id="uid" placeholder="ID" readonly>
+            </div>
+            <div class="form-group">
+              <select id="kode_dosen" class="form-control">
+                <option value="">Pilih Dosen</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <select id="kode_matakuliah" class="form-control">
+                <option value="">Pilih Mata Kuliah</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <select id="semester" class="form-control">
+                <option value="">Pilih Semester</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <input type="number" class="form-control" id="tahun" placeholder="Tahun">
+            </div>
+            <button type="button" onclick="createNgajar();" class="btn btn-primary btn-user">Simpan Baru</button>
+            <button type="button" onclick="updateNgajar();" class="btn btn-warning btn-user">Update</button>
+          </form>
+
+          <div class="card shadow mb-4">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">Information</h6>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table id="tb_mengajar" class="table table-bordered" width="100%" cellspacing="0">
+                  <thead>
+                    <tr>
+                      <th>#ID</th>
+                      <th>Dosen</th>
+                      <th>Mata Kuliah</th>
+                      <th>Semester</th>
+                      <th>Tahun</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- Data will be inserted here -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+   <!-- JS Scripts -->
+   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- ✅ jQuery -->
+   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> <!-- ✅ Bootstrap 4 -->
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script> <!-- 🚫 duplicate jQuery -->
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script> <!-- ✅ easing -->
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/startbootstrap-sb-admin-2/4.0.6/js/sb-admin-2.min.js"></script> <!-- ✅ SB Admin 2 -->
+   <script src="script.js"></script> <!-- ✅ your script -->
+   
+    
+</body>
+</html>

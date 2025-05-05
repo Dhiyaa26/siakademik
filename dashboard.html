@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Fonts and Template CSS -->
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,400,600,700,800,900" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/startbootstrap-sb-admin-2/4.0.6/css/sb-admin-2.min.css">
+</head>
+
+<body class="bg-gray-100 min-h-screen flex">
+
+  <!-- Sidebar -->
+  <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+    <!-- Brand -->
+    <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+      <div class="sidebar-brand-icon rotate-n-15">
+        <i class="fas fa-laugh-wink"></i>
+      </div>
+      <div class="sidebar-brand-text mx-3">SI Akademik</div>
+    </a>
+
+    <!-- Divider -->
+    <hr class="sidebar-divider my-0">
+
+    <!-- Menu Items -->
+    <li class="nav-item">
+      <a class="nav-link" href="dashboard.html">
+        <i class="fas fa-fw fa-tachometer-alt"></i>
+        <span>Dashboard</span>
+      </a>
+    </li>
+
+    <hr class="sidebar-divider">
+    <div class="sidebar-heading">Menu</div>
+
+    <li class="nav-item">
+      <a class="nav-link" href="matakuliah.html">
+        <i class="fas fa-fw fa-book"></i>
+        <span>Mata Kuliah</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link" href="dosen.html">
+        <i class="fas fa-fw fa-chalkboard-teacher"></i>
+        <span>Dosen</span>
+      </a>
+    </li>
+
+    <li class="nav-item">
+      <a class="nav-link" href="mengajar.html">
+        <i class="fas fa-fw fa-calendar-day"></i>
+        <span>Jadwal</span>
+      </a>
+    </li>
+  </ul>
+
+  <!-- Content Wrapper -->
+  <div id="content-wrapper" class="d-flex flex-column w-full">
+
+    <!-- Main Content -->
+    <div id="content">
+
+      <!-- Topbar -->
+      <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+        <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+          <i class="fa fa-bars"></i>
+        </button>
+
+        <ul class="navbar-nav ml-auto">
+            <div class="topbar-divider d-none d-sm-block"></div>
+          
+            <!-- User Info -->
+            <li class="nav-item dropdown no-arrow">
+              <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <span class="mr-2 d-none d-lg-inline text-gray-600 small" id="navbarUserName">Loading...</span>
+                <img class="img-profile rounded-circle" src="https://source.unsplash.com/QAB-WJcbgJk/60x60">
+              </a>
+          
+              <!-- Dropdown -->
+              <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                <a class="dropdown-item" href="settings.html">
+                  <i class="fas fa-user-cog fa-sm fa-fw mr-2 text-gray-400"></i>
+                  Account Settings
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="#" id="logoutBtnDropdown">
+                  <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                  Logout
+                </a>
+              </div>
+            </li>
+          </ul>          
+      </nav>
+      
+        <!-- Welcome Message -->
+        <div class="bg-white p-6 rounded-lg shadow">
+          <h2 class="text-xl font-semibold mb-4 text-gray-700">Welcome, <span id="userNameText2" class="text-indigo-600"></span>!</h2>
+          <p class="text-gray-600">
+            You are logged in with the email: 
+            <span id="userEmailText" class="font-medium text-gray-800"></span>
+          </p>
+          <button class="mt-6 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600" onclick="logout()">Logout</button>
+        </div>
+      </main>
+
+    </div>
+  </div>
+
+  <!-- JS: User Handling -->
+  <script>
+    const user = JSON.parse(localStorage.getItem("user"));
+
+  if (!user) {
+  alert("You're not logged in.");
+  window.location.href = "login.html";
+   } else {
+  document.getElementById("navbarUserName").textContent = user.name;
+  document.getElementById("userNameText").textContent = user.name;
+  document.getElementById("userNameText2").textContent = user.name;
+  document.getElementById("userEmailText").textContent = user.email;
+   }
+
+    function logout() {
+      localStorage.removeItem("user");
+      window.location.href = "login.html";
+    }
+    document.getElementById("logoutBtn").addEventListener("click", logout);
+    document.getElementById("logoutBtnDropdown").addEventListener("click", logout);
+  </script>
+
+  <!-- JS Dependencies -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> 
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script> 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/startbootstrap-sb-admin-2/4.0.6/js/sb-admin-2.min.js"></script>
+
+</body>
+</html>

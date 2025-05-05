@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+   <!-- Firebase SDK -->
+   <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+  
+    const firebaseConfig = {
+      apiKey: "AIzaSyC4h4Fk0rZCGhqZt4AUw4NYXTizM_J2hh4",
+      authDomain: "realtime-db-f4793.firebaseapp.com",
+      databaseURL: "https://realtime-db-f4793-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "realtime-db-f4793",
+      storageBucket: "realtime-db-f4793.appspot.com",
+      messagingSenderId: "651818522011",
+      appId: "1:651818522011:web:5e451ccf77e2c2594b7d3e",
+      measurementId: "G-B2VMN1P8XK"
+    };
+  
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const form = document.getElementById('loginForm');
+  
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = form.email.value;
+      const password = form.password.value;
+  
+      const snapshot = await get(child(ref(db), 'users'));
+      if (snapshot.exists()) {
+        const users = snapshot.val();
+        const user = Object.values(users).find(u => u.email === email && u.password === password);
+  
+        if (user) {
+          localStorage.setItem("user", JSON.stringify(user));
+          alert("Login successful!");
+          window.location.href = "dashboard.html";
+        } else {
+          alert("Invalid credentials");
+        }
+      } else {
+        alert("No users found.");
+      }
+    });
+  </script>
+</head>
+<body class="flex items-center justify-center h-screen bg-gradient-to-r from-blue-500 to-indigo-600">
+  <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
+    <h2 class="text-2xl font-bold text-center mb-6">Welcome Back</h2>
+    <form id="loginForm" class="space-y-4">
+      <input type="email" id="email" placeholder="Email" class="w-full p-3 border border-gray-300 rounded-lg" required>
+      <input type="password" id="password" placeholder="Password" class="w-full p-3 border border-gray-300 rounded-lg" required>
+      <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-lg">Login</button>
+    </form>
+    <p class="text-center text-sm mt-4">Don't have an account? <a href="register.html" class="text-blue-600 font-medium">Register</a></p>
+  </div>
+</body>
+</html>

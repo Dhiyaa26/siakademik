@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SI Akademik - Mata Kuliah</title>
+
+  <!-- Fonts and CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css?family=Nunito:200,300,400,600,700,800,900" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/startbootstrap-sb-admin-2/4.0.6/css/sb-admin-2.min.css">
+  <link rel="stylesheet" href="matkul.css">
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getDatabase, ref, set, update, remove, get } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC4h4Fk0rZCGhqZt4AUw4NYXTizM_J2hh4",
+      authDomain: "realtime-db-f4793.firebaseapp.com",
+      databaseURL: "https://realtime-db-f4793-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "realtime-db-f4793",
+      storageBucket: "realtime-db-f4793.appspot.com",
+      messagingSenderId: "651818522011",
+      appId: "1:651818522011:web:5e451ccf77e2c2594b7d3e",
+      measurementId: "G-B2VMN1P8XK"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    window.save_user = function () {
+      const kode = document.getElementById('kode').value;
+      const sks = document.getElementById('sks').value;
+      const nama = document.getElementById('nama').value;
+
+      if (!kode || !sks || !nama) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      const newUserRef = ref(db, 'matakuliah/' + kode);
+      set(newUserRef, { kode, sks, nama })
+        .then(() => {
+          alert('Mata kuliah created successfully!');
+          reload_page();
+        })
+        .catch(error => {
+          alert('Error creating Mata Kuliah: ' + error.message);
+        });
+    };
+
+    window.load_data = function () {
+      const tbMataKuliah = document.getElementById('tb_matakuliah');
+      const databaseRef = ref(db, 'matakuliah/');
+      let rowIndex = 1;
+
+      get(databaseRef).then(snapshot => {
+        snapshot.forEach(childSnapshot => {
+          const childKey = childSnapshot.key;
+          const childData = childSnapshot.val();
+
+          const row = tbMataKuliah.insertRow(rowIndex++);
+          row.insertCell(0).appendChild(document.createTextNode(childKey));
+          row.insertCell(1).appendChild(document.createTextNode(childData.kode));
+          row.insertCell(2).appendChild(document.createTextNode(childData.sks));
+          row.insertCell(3).appendChild(document.createTextNode(childData.nama));
+          row.insertCell(4).innerHTML = `
+            <button class="btn btn-warning btn-sm" onclick="edit_user('${childKey}')">
+              <i class="fas fa-edit"></i> Edit
+            </button>
+            <button class="btn btn-danger btn-sm" onclick="delete_user('${childKey}')">
+              <i class="fas fa-trash-alt"></i> Delete
+            </button>
+          `;
+        });
+      });
+    };
+
+    window.edit_user = function (uid) {
+      const databaseRef = ref(db, 'matakuliah/' + uid);
+      get(databaseRef).then(snapshot => {
+        if (snapshot.exists()) {
+          const data = snapshot.val();
+          document.getElementById('uid').value = uid;
+          document.getElementById('kode').value = data.kode;
+          document.getElementById('sks').value = data.sks;
+          document.getElementById('nama').value = data.nama;
+        }
+      });
+    };
+
+    window.update_user = function () {
+      const kode = document.getElementById('kode').value;
+      const sks = document.getElementById('sks').value;
+      const nama = document.getElementById('nama').value;
+      const uid = document.getElementById('uid').value;
+
+      if (!uid) {
+        alert("Please select a Mata Kuliah to update.");
+        return;
+      }
+
+      update(ref(db), { ['/matakuliah/' + uid]: { kode, sks, nama } })
+        .then(() => {
+          alert('Mata kuliah updated successfully!');
+          reload_page();
+        })
+        .catch(error => {
+          alert('Error updating Mata Kuliah: ' + error.message);
+        });
+    };
+
+    window.delete_user = function (uid) {
+      if (!uid) {
+        alert("Please select a Mata Kuliah to delete.");
+        return;
+      }
+
+      remove(ref(db, '/matakuliah/' + uid))
+        .then(() => {
+          alert('Mata kuliah deleted successfully!');
+          reload_page();
+        })
+        .catch(error => {
+          alert('Error deleting Mata Kuliah: ' + error.message);
+        });
+    };
+
+    function reload_page() {
+      window.location.reload();
+    }
+
+    window.onload = load_data;
+  </script>
+</head>
+
+<body>
+      <!-- Page Wrapper -->
+  <div id="wrapper">
+
+    <!-- Sidebar -->
+    <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+      <!-- Brand -->
+      <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+        <div class="sidebar-brand-icon rotate-n-15">
+          <i class="fas fa-laugh-wink"></i>
+        </div>
+        <div class="sidebar-brand-text mx-3">SI Akademik</div>
+      </a>
+
+      <!-- Divider -->
+      <hr class="sidebar-divider my-0">
+
+      <!-- Menu Items -->
+      <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="fas fa-fw fa-tachometer-alt"></i><span>Dashboard</span></a></li>
+      <hr class="sidebar-divider">
+      <div class="sidebar-heading">Menu</div>
+      <li class="nav-item"><a class="nav-link" href="matakuliah.html"><i class="fas fa-fw fa-book"></i><span>Mata Kuliah</span></a></li>
+      <li class="nav-item"><a class="nav-link" href="dosen.html"><i class="fas fa-fw fa-chalkboard-teacher"></i><span>Dosen</span></a></li>
+      <li class="nav-item"><a class="nav-link" href="mengajar.html"><i class="fas fa-fw fa-calendar-day"></i><span>Jadwal</span></a></li>
+    </ul>
+
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+
+      <!-- Main Content -->
+      <div id="content">
+
+        <!-- Topbar -->
+        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+          <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+            <i class="fa fa-bars"></i>
+          </button>
+
+          <ul class="navbar-nav ml-auto">
+            <div class="topbar-divider d-none d-sm-block"></div>
+            <li class="nav-item dropdown no-arrow">
+              <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown">
+                <span class="mr-2 d-none d-lg-inline text-gray-600 small">Administrator</span>
+                <img class="img-profile rounded-circle" src="https://source.unsplash.com/QAB-WJcbgJk/60x60">
+              </a>
+              <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                <a class="dropdown-item" href="#"><i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>Ubah Password</a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal"><i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>Logout</a>
+              </div>
+            </li>
+          </ul>
+        </nav>
+      
+
+       
+        <!-- Page Content -->
+        <div class="container mt-5">
+          <h1 class="h3 mb-4 text-gray-800">Mata Kuliah</h1>
+
+          <form class="user">
+            <input type="hidden" id="uid" />
+            <div class="form-group row">
+              <div class="col-sm-6 mb-3 mb-sm-0">
+                <input type="text" class="form-control" id="kode" placeholder="Kode Mata Kuliah">
+              </div>
+              <div class="col-sm-6">
+                <input type="number" class="form-control" id="sks" placeholder="SKS">
+              </div>
+            </div>
+            <div class="form-group">
+              <input type="text" class="form-control" id="nama" placeholder="Nama Mata Kuliah">
+            </div>
+            <button type="button" onclick="save_user()" class="btn btn-primary">Save</button>
+          </form>
+
+          <table id="tb_matakuliah" class="table table-bordered mt-5">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Kode</th>
+                <th>SKS</th>
+                <th>Nama</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- JS Scripts -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- ✅ jQuery -->
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> <!-- ✅ Bootstrap 4 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script> <!-- 🚫 duplicate jQuery -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script> <!-- ✅ easing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/startbootstrap-sb-admin-2/4.0.6/js/sb-admin-2.min.js"></script> <!-- ✅ SB Admin 2 -->
+  <script src="script.js"></script> <!-- ✅ your script -->
+  
+
+</body>
+</html>
